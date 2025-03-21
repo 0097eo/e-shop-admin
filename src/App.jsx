@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom"
 import DashBoardLayout from "./pages/DashBoardLayout"
 import DashBoard from "./pages/DashBoard"
 import Products from "./pages/Products"
@@ -15,9 +15,8 @@ const ProtectedRoute = ({ children }) => {
 }
 
 const App = () => {
-
   const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem("access")!== null
+    localStorage.getItem("access") !== null
   )
 
   useEffect(() => {
@@ -32,40 +31,31 @@ const App = () => {
     };
   }, []);
 
-
   return (
     <Router>
       <Routes>
         {/* Public route */}
         <Route path="/login" element={<LoginPage />} />
         
-        {/* Protected routes */}
+        {/* Protected dashboard layout with nested routes */}
         <Route 
-          path="/" 
           element={
             <ProtectedRoute>
-              <DashBoardLayout />
+              <DashBoardLayout>
+                <Outlet />
+              </DashBoardLayout>
             </ProtectedRoute>
           } 
-        />
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <DashBoard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/products-admin" 
-          element={
-            <ProtectedRoute>
-              <Products />
-            </ProtectedRoute>
-          } 
-        />
+        >
+          {/* Dashboard home */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
+          {/* Dashboard pages */}
+          <Route path="/dashboard" element={<DashBoard />} />
+          <Route path="/products" element={<Products />} />
+        </Route>
         
-        {/* Catch-all redirect to login if not authenticated, otherwise to dashboard */}
+        {/* Catch-all redirect */}
         <Route 
           path="*" 
           element={
