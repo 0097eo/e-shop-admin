@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom"
 import DashBoardLayout from "./pages/DashBoardLayout"
-import DashBoard from "./pages/DashBoard"
+import Dashboard from "./pages/DashBoard"
 import Products from "./pages/Products"
 import LoginPage from "./pages/Login"
 import { useEffect, useState } from "react"
@@ -51,7 +51,7 @@ const App = () => {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           
           {/* Dashboard pages */}
-          <Route path="/dashboard" element={<DashBoard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<Products />} />
         </Route>
         
