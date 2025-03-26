@@ -1,26 +1,26 @@
-import React from 'react';
+import {useContext} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  ShoppingCart, 
-  User,
-  Trophy,
-  ShoppingBag,
-  BarChart2,
-  MessageSquare,
-  Settings,
-  Star,
-  History, 
-  LogOut
+  LogOut,
+  ShoppingBasket
 } from 'lucide-react';
+import AuthContext from '../context/AuthContext';
+
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useContext(AuthContext);
+
+  const handleClick = () => {
+    logout()
+    navigate('/login');
+  };
   
   const menuItems = [
     { text: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { text: 'Products', icon: User, path: '/products' },
+    { text: 'Products', icon: ShoppingBasket, path: '/products' },
     // { text: 'Leaderboard', icon: Trophy, path: '/leaderboard' },
     // { text: 'Order', icon: ShoppingBag, path: '/orders' },
     // { text: 'Product', icon: ShoppingCart, path: '/products' },
@@ -60,10 +60,7 @@ const Sidebar = () => {
       {/* Signout button at bottom */}
       <div className="mt-auto mb-6 px-4">
         <button
-          onClick={() => {
-            localStorage.removeItem("access");
-            navigate("/login");
-          }}
+          onClick={handleClick}
           className="w-full flex items-center px-4 py-3 text-gray-400 hover:text-gray-200"
         >
           <LogOut className="w-5 h-5 mr-3" />
