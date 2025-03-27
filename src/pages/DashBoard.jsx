@@ -223,7 +223,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="mb-2 text-sm font-medium text-gray-400">Total Sales</p>
-                <p className="text-2xl font-semibold text-white">KSH {formatNumber(dashboardMetrics.totalSales)}</p>
+                <p className="text-2xl font-semibold text-white">KES {formatNumber(dashboardMetrics.totalSales)}</p>
               </div>
             </div>
           </div>
@@ -247,7 +247,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="mb-2 text-sm font-medium text-gray-400">Avg. Order Value</p>
-                <p className="text-2xl font-semibold text-white">KSH {formatNumber(dashboardMetrics.avgOrderValue)}</p>
+                <p className="text-2xl font-semibold text-white">KES {formatNumber(dashboardMetrics.avgOrderValue)}</p>
               </div>
             </div>
           </div>
@@ -282,7 +282,7 @@ const Dashboard = () => {
                   <XAxis dataKey="date" stroke="#D1D5DB" />
                   <YAxis stroke="#D1D5DB" />
                   <Tooltip 
-                    formatter={(value) => [`KSH ${formatNumber(value)}`, '']} 
+                    formatter={(value) => [`KES ${formatNumber(value)}`, '']} 
                     contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#fff' }} 
                   />
                   <Legend />
@@ -290,7 +290,7 @@ const Dashboard = () => {
                     type="monotone" 
                     dataKey="total_sales" 
                     stroke="#0088FE" 
-                    name="Sales (KSH)" 
+                    name="Sales (KES)" 
                     activeDot={{ r: 8 }} 
                   />
                   <Line 
@@ -321,15 +321,15 @@ const Dashboard = () => {
                   <XAxis 
                     type="number" 
                     stroke="#D1D5DB" 
-                    tickFormatter={(value) => `KSH ${formatNumber(value)}`}
+                    tickFormatter={(value) => `KES ${formatNumber(value)}`}
                   />
                   <YAxis dataKey="name" type="category" width={120} stroke="#D1D5DB" />
                   <Tooltip 
-                    formatter={(value) => [`KSH ${formatNumber(value)}`, '']} 
+                    formatter={(value) => [`KES ${formatNumber(value)}`, '']} 
                     contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#fff' }} 
                   />
                   <Legend />
-                  <Bar dataKey="revenue" name="Revenue (KSH)" fill="#8884d8" />
+                  <Bar dataKey="revenue" name="Revenue (KES)" fill="#8884d8" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -360,7 +360,7 @@ const Dashboard = () => {
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value) => [`KSH ${formatNumber(value)}`, '']} 
+                    formatter={(value) => [`KES ${formatNumber(value)}`, '']} 
                     contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#fff' }} 
                   />
                   <Legend wrapperStyle={{ color: '#D1D5DB' }} />
@@ -400,13 +400,13 @@ const Dashboard = () => {
                         <div className="text-sm text-gray-300">{customer.user_email}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-300">KSH {formatNumber(customer.total_spent)}</div>
+                        <div className="text-sm text-gray-300">KES {formatNumber(customer.total_spent)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-300">{formatNumber(customer.orders_count, 0)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-300">KSH {formatNumber(customer.average_order_value)}</div>
+                        <div className="text-sm text-gray-300">KES {formatNumber(customer.average_order_value)}</div>
                       </td>
                     </tr>
                   ))}
