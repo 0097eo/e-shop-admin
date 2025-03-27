@@ -3,7 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   LogOut,
-  ShoppingBasket
+  ShoppingBasket,
+  ShoppingBag,
+  TrendingUp
 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 
@@ -20,9 +22,9 @@ const Sidebar = () => {
   
   const menuItems = [
     { text: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { text: 'Products', icon: ShoppingBasket, path: '/products' },
+    { text: 'Product Performance', icon: TrendingUp, path: '/products' },
+    { text: 'Orders', icon: ShoppingBag, path: '/orders' },
     // { text: 'Leaderboard', icon: Trophy, path: '/leaderboard' },
-    // { text: 'Order', icon: ShoppingBag, path: '/orders' },
     // { text: 'Product', icon: ShoppingCart, path: '/products' },
     // { text: 'Sales Report', icon: BarChart2, path: '/sales-report' },
     // { text: 'Message', icon: MessageSquare, path: '/messages' },
