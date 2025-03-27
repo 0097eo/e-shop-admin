@@ -3,6 +3,7 @@ import DashBoardLayout from "./pages/DashBoardLayout"
 import Dashboard from "./pages/DashBoard"
 import Products from "./pages/Products"
 import LoginPage from "./pages/Login"
+import Orders from "./pages/Orders"
 import { useEffect, useState } from "react"
 
 const ProtectedRoute = ({ children }) => {
@@ -53,6 +54,7 @@ const App = () => {
           {/* Dashboard pages */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/orders" element={<Orders/>} />
         </Route>
         
         {/* Catch-all redirect */}
