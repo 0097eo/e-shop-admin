@@ -4,6 +4,8 @@ import Dashboard from "./pages/DashBoard"
 import Products from "./pages/Products"
 import LoginPage from "./pages/Login"
 import Orders from "./pages/Orders"
+import ProductManagement from "./pages/ProductManangement"
+
 import { useEffect, useState } from "react"
 
 const ProtectedRoute = ({ children }) => {
@@ -55,6 +57,7 @@ const App = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<Products />} />
           <Route path="/orders" element={<Orders/>} />
+          <Route path="/product-management" element={<ProductManagement />} />
         </Route>
         
         {/* Catch-all redirect */}
