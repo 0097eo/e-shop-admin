@@ -8,7 +8,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
-
+import logoImage from '../assets/logo.png';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -24,19 +24,14 @@ const Sidebar = () => {
     { text: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { text: 'Product Performance', icon: TrendingUp, path: '/products' },
     { text: 'Orders', icon: ShoppingBag, path: '/orders' },
-    // { text: 'Leaderboard', icon: Trophy, path: '/leaderboard' },
-    // { text: 'Product', icon: ShoppingCart, path: '/products' },
-    // { text: 'Sales Report', icon: BarChart2, path: '/sales-report' },
-    // { text: 'Message', icon: MessageSquare, path: '/messages' },
-    // { text: 'Settings', icon: Settings, path: '/settings' },
-    // { text: 'Favourite', icon: Star, path: '/favourites' },
-    // { text: 'History', icon: History, path: '/history' },
+    { text: 'Products', icon: ShoppingBasket, path: '/product-management' },
   ];
 
   return (
     <div className="w-64 bg-gray-900 h-full flex flex-col">
-      <div className="h-8 flex items-center px-4 pt-4">
-        <div className="text-gray-200 font-semibold">EShop Admin</div>
+      <div className="flex items-center px-4 pt-4 pb-2">
+        <img src={logoImage} alt="Logo" className="h-8 w-auto mr-2" />
+        <div className="text-gray-200 font-semibold">Ideal Furniture and Decor</div>
       </div>
       
       <nav className="mt-6 flex-grow">
@@ -59,7 +54,7 @@ const Sidebar = () => {
         })}
       </nav>
       
-      {/* Signout button at bottom */}
+      
       <div className="mt-auto mb-6 px-4">
         <button
           onClick={handleClick}
