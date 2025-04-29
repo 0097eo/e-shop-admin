@@ -31,7 +31,7 @@ const Sidebar = () => {
     <div className="w-64 bg-gray-900 h-full flex flex-col">
       <div className="flex items-center px-4 pt-4 pb-2">
         <img src={logoImage} alt="Logo" className="h-8 w-auto mr-2" />
-        <div className="text-gray-200 font-semibold">Ideal Furniture and Decor</div>
+        <div className="text-gray-200 font-semibold">Ideal Admin</div>
       </div>
       
       <nav className="mt-6 flex-grow">
