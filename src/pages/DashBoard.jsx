@@ -193,8 +193,9 @@ const Dashboard = () => {
             </div>
             <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4">
               <div>
-                <label className="block text-sm font-medium text-gray-400">Start Date</label>
+                <label htmlFor='start-date' className="block text-sm font-medium text-gray-400">Start Date</label>
                 <input
+                  id='start-date'
                   type="date"
                   value={dateRange.startDate}
                   onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})}
@@ -202,8 +203,9 @@ const Dashboard = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400">End Date</label>
+                <label htmlFor="end-date" className="block text-sm font-medium text-gray-400">End Date</label>
                 <input
+                  id='end-date'
                   type="date"
                   value={dateRange.endDate}
                   onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})}
