@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { 
   DollarSign, ShoppingBag, Users, TrendingUp, 
-  Package, Grid, Calendar 
+  Package, Grid, Calendar, RefreshCw
 } from 'lucide-react';
 
 const calculateMetric = (data, metricKey, parseFunc = parseFloat, decimals = 2) => {
@@ -31,6 +31,7 @@ const Dashboard = () => {
   const [customerInsights, setCustomerInsights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [updating, setUpdating] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
@@ -87,6 +88,40 @@ const Dashboard = () => {
 
     fetchData();
   }, [dateRange]);
+
+  const updateMetrics = async () => {
+    setUpdating(true);
+    try {
+      const token = localStorage.getItem('access');
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await fetch('/api/salesanalysis/update-metrics/', {
+        method: 'POST',
+        headers
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update metrics');
+      }
+
+      // Refresh the dashboard data after updating metrics
+      const newDateRange = { ...dateRange };
+      setDateRange(newDateRange);
+      
+    } catch (err) {
+      setError(err.message);
+      console.error('Update metrics error:', err);
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   // Memoized calculations to prevent unnecessary re-renders
   const dashboardMetrics = useMemo(() => {
@@ -180,6 +215,14 @@ const Dashboard = () => {
       <header className="bg-gray-900 shadow">
         <div className="flex items-center justify-between px-4 py-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <h1 className="text-2xl font-bold text-white">Sales Analytics Dashboard</h1>
+          <button
+            onClick={updateMetrics}
+            disabled={updating}
+            className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+          >
+            <RefreshCw size={16} className={`mr-2 ${updating ? 'animate-spin' : ''}`} />
+            {updating ? 'Updating...' : 'Update Metrics'}
+          </button>
         </div>
       </header>
 
