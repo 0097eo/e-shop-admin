@@ -306,14 +306,16 @@ const Orders = () => {
         </div>
 
         {error && (
-          <div className="bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded mb-4">
+          <div className="bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded mb-4" data-testid="error-message">
             {error}
           </div>
         )}
 
         {loading && (
           <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal-500"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal-500" role='status'>
+              <span className="sr-only">Loading...</span>
+            </div>
           </div>
         )}
 
