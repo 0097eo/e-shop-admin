@@ -1,12 +1,9 @@
-//import React from "react";
 import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import Dashboard from "../src/pages/DashBoard";
-import { LineChart, ResponsiveContainer } from "recharts";
 
-
-//mock recharts components
-vi.mock("recharts", ()=> {
+// Mock Recharts components
+vi.mock("recharts", () => {
     const originalModule = vi.importActual("recharts");
     return {
         ...originalModule,
@@ -23,8 +20,8 @@ vi.mock("recharts", ()=> {
         Tooltip: () => <div data-testid="tooltip" />,
         Legend: () => <div data-testid="legend" />,
         Cell: () => <div data-testid="cell" />
-        }
-})
+    }
+});
 
 vi.mock('lucide-react', () => ({
     DollarSign: () => <div data-testid="icon-dollar" />,
@@ -33,22 +30,22 @@ vi.mock('lucide-react', () => ({
     TrendingUp: () => <div data-testid="icon-trending-up" />,
     Package: () => <div data-testid="icon-package" />,
     Grid: () => <div data-testid="icon-grid" />,
-    Calendar: () => <div data-testid="icon-calendar" />
-  }));
+    Calendar: () => <div data-testid="icon-calendar" />,
+    RefreshCw: () => <div data-testid="icon-refresh" />
+}));
 
-
-  //mock localstrorage
-  const localStorageMock  = {
+// Mock localStorage
+const localStorageMock = {
     getItem: vi.fn(),
     setItem: vi.fn(),
     removeItem: vi.fn(),
     clear: vi.fn(),
-  }
+};
 
-Object.defineProperty(window, 'localStorage', {value: localStorageMock});
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 describe("Dashboard Component", () => {
-    //sample data
+    // Sample data
     const mockDailySales = [
         { date: '2025-04-20', total_sales: '1000.50', order_count: '5', unique_customers: '3' },
         { date: '2025-04-21', total_sales: '1200.25', order_count: '7', unique_customers: '4' }
@@ -57,30 +54,29 @@ describe("Dashboard Component", () => {
     const mockProductPerformance = [
         { product: '1', product_name: 'Product A', revenue: '800.30', units_sold: '12' },
         { product: '2', product_name: 'Product B', revenue: '650.20', units_sold: '8' }
-    ]
+    ];
 
     const mockCategoryPerformance = [
-        {category: '1', category_name: 'Category A', revenue: '500.00', units_sold: '10'},
-        {category: '2', category_name: 'Category B', revenue: '300.00', units_sold: '20'},
-    ]
+        { category: '1', category_name: 'Category A', revenue: '500.00', products_sold: '10' },
+        { category: '2', category_name: 'Category B', revenue: '300.00', products_sold: '20' },
+    ];
 
     const mockCustomerInsights = [
         { id: '1', user_email: 'user1@example.com', total_spent: '2500.75', orders_count: '12', average_order_value: '208.40' },
         { id: '2', user_email: 'user2@example.com', total_spent: '1800.25', orders_count: '8', average_order_value: '225.03' }
-      ];
-    
+    ];
 
-    //fetch mock before each test
-    beforeEach(()=> {
-        vi.resetAllMocks()
+    // Fetch mock before each test
+    beforeEach(() => {
+        vi.resetAllMocks();
 
-        //mock localStorage.getItem to get token
-        localStorageMock.getItem.mockReturnValue("fake-token")
+        // Mock localStorage.getItem to get token
+        localStorageMock.getItem.mockReturnValue("fake-token");
 
-        //mock fetch
-        global.fetch = vi.fn()
+        // Mock fetch
+        global.fetch = vi.fn();
 
-        // configure fetch mock to return different data for different endpoints
+        // Configure fetch mock to return different data for different endpoints
         fetch.mockImplementation((url) => {
             if (url.includes("daily-sales")) {
                 return Promise.resolve({
@@ -106,9 +102,15 @@ describe("Dashboard Component", () => {
                     json: () => Promise.resolve(mockCustomerInsights)
                 });
             }
+            if (url.includes("update-metrics")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ success: true })
+                });
+            }
             return Promise.reject(new Error("Unknown endpoint"));
         });
-    })
+    });
 
     afterEach(() => {
         vi.restoreAllMocks();
@@ -116,9 +118,9 @@ describe("Dashboard Component", () => {
 
     it('renders loading state initially', () => {
         render(<Dashboard />);
-        const loading = screen.getByText(/Loading.../i);
+        const loading = screen.getByText(/Loading dashboard/i);
         expect(loading).toBeInTheDocument();
-    })
+    });
 
     it('renders error state if fetch fails', async () => {
         fetch.mockRejectedValueOnce(new Error('Failed to fetch data'));
@@ -126,28 +128,26 @@ describe("Dashboard Component", () => {
         render(<Dashboard />);
         
         await waitFor(() => {
-          expect(screen.getByText('Error')).toBeInTheDocument();
-          expect(screen.getByText('Failed to fetch data')).toBeInTheDocument();
+            expect(screen.getByText('Error')).toBeInTheDocument();
+            expect(screen.getByText('Failed to fetch data')).toBeInTheDocument();
         });
-      });
+    });
 
     it('renders error state if API returns non-ok response', async () => {
         fetch.mockImplementationOnce(() => 
-          Promise.resolve({
-            ok: false,
-            status: 403,
-            statusText: 'Forbidden'
-          })
+            Promise.resolve({
+                ok: false,
+                status: 403,
+                statusText: 'Forbidden'
+            })
         );
       
-        await act(async () => {
-          render(<Dashboard />);
-        });
+        render(<Dashboard />);
       
         await waitFor(() => {
-          expect(screen.getByText('Error')).toBeInTheDocument();
+            expect(screen.getByText('Error')).toBeInTheDocument();
         });
-      });
+    });
 
     it('renders error state when localStorage has no token', async () => {
         localStorageMock.getItem.mockReturnValueOnce(null);
@@ -155,48 +155,56 @@ describe("Dashboard Component", () => {
         render(<Dashboard />);
         
         await waitFor(() => {
-          expect(screen.getByText('Error')).toBeInTheDocument();
-          expect(screen.getByText('Authentication token not found')).toBeInTheDocument();
+            expect(screen.getByText('Error')).toBeInTheDocument();
+            expect(screen.getByText('Authentication token not found')).toBeInTheDocument();
         });
     });
 
     it('renders dashboard with metrics after successful data fetch', async () => {
         render(<Dashboard />);
       
-        // Wait for something that only appears *after* fetch completes
+        // Wait for loading to finish
         await waitFor(() => expect(screen.getByText('Sales Analytics Dashboard')).toBeInTheDocument());
       
-        // Then do the rest of your checks directly — no need to nest inside `waitFor` anymore
+        // Check header and basic structure
         expect(screen.getByText('Date Range')).toBeInTheDocument();
-        expect(screen.getByText('Start Date')).toBeInTheDocument();
-        expect(screen.getByText('End Date')).toBeInTheDocument();
+        expect(screen.getByLabelText('Start Date')).toBeInTheDocument();
+        expect(screen.getByLabelText('End Date')).toBeInTheDocument();
       
+        // Check summary cards
         expect(screen.getByText('Total Sales')).toBeInTheDocument();
+        // Total from mockDailySales: 1000.50 + 1200.25 = 2200.75
         expect(screen.getByText('KES 2,200.75')).toBeInTheDocument();
       
         expect(screen.getByText('Total Orders')).toBeInTheDocument();
-        expect(screen.getAllByText('12').length).toBeGreaterThan(0);
+        // Total orders: 5 + 7 = 12
+        const ordersElements = screen.getAllByText('12');
+        expect(ordersElements.length).toBeGreaterThan(0);
       
         expect(screen.getByText('Unique Customers')).toBeInTheDocument();
+        // Total unique customers: 3 + 4 = 7
         expect(screen.getByText('7')).toBeInTheDocument();
       
         expect(screen.getByText('Avg. Order Value')).toBeInTheDocument();
+        // 2200.75 / 12 = 183.40
         expect(screen.getByText('KES 183.40')).toBeInTheDocument();
       
+        // Check chart sections
         expect(screen.getByText('Daily Sales')).toBeInTheDocument();
         expect(screen.getByText('Top Products by Revenue')).toBeInTheDocument();
         expect(screen.getByText('Category Revenue Distribution')).toBeInTheDocument();
         expect(screen.getByText('Top Customers')).toBeInTheDocument();
       
+        // Check customer table data
         expect(screen.getByText('user1@example.com')).toBeInTheDocument();
         expect(screen.getByText('user2@example.com')).toBeInTheDocument();
-      });
+    });
 
-      it('handles date range selection', async () => {
+    it('handles date range selection', async () => {
         render(<Dashboard />);
         
         await waitFor(() => {
-          expect(screen.getByText('Sales Analytics Dashboard')).toBeInTheDocument();
+            expect(screen.getByText('Sales Analytics Dashboard')).toBeInTheDocument();
         });
         
         // Get date inputs
@@ -205,33 +213,58 @@ describe("Dashboard Component", () => {
         
         // Change dates
         await act(async () => {
-          fireEvent.change(startDateInput, { target: { value: '2025-04-15' } });
-          fireEvent.change(endDateInput, { target: { value: '2025-04-25' } });
+            fireEvent.change(startDateInput, { target: { value: '2025-04-15' } });
+            fireEvent.change(endDateInput, { target: { value: '2025-04-25' } });
         });
         
         // Verify fetch was called with new date range
         await waitFor(() => {
-          expect(global.fetch).toHaveBeenCalledWith(
-            expect.stringContaining('start_date=2025-04-15'),
-            expect.any(Object)
-          );
-          expect(global.fetch).toHaveBeenCalledWith(
-            expect.stringContaining('end_date=2025-04-25'),
-            expect.any(Object)
-          );
+            // We need to check that at least one fetch call contains these date parameters
+            const fetchCalls = global.fetch.mock.calls;
+            const hasStartDate = fetchCalls.some(call => 
+                call[0].includes('start_date=2025-04-15')
+            );
+            const hasEndDate = fetchCalls.some(call => 
+                call[0].includes('end_date=2025-04-25')
+            );
+            
+            expect(hasStartDate).toBe(true);
+            expect(hasEndDate).toBe(true);
         });
-      });
+    });
 
-      it('verifies formatNumber utility function works correctly', async () => {
+    it('handles the Update Metrics button click', async () => {
         render(<Dashboard />);
         
         await waitFor(() => {
-          expect(screen.getByText('KES 2,200.75')).toBeInTheDocument();
-          expect(screen.getAllByText('12').length).toBeGreaterThan(0);
+            expect(screen.getByText('Sales Analytics Dashboard')).toBeInTheDocument();
         });
-      });
+        
+        // Find and click the update metrics button
+        const updateButton = screen.getByText('Update Metrics');
+        fireEvent.click(updateButton);
+        
+        // Check if the button text changes during updating
+        expect(screen.getByText('Updating...')).toBeInTheDocument();
+        
+        await waitFor(() => {
+            // Verify the POST request was made to the correct endpoint
+            expect(fetch).toHaveBeenCalledWith(
+                '/api/salesanalysis/update-metrics/',
+                expect.objectContaining({
+                    method: 'POST',
+                    headers: expect.objectContaining({
+                        'Authorization': 'Bearer fake-token'
+                    })
+                })
+            );
+            
+            // Verify button text changes back after update completes
+            expect(screen.getByText('Update Metrics')).toBeInTheDocument();
+        });
+    });
 
-      it("renders charts correctly", async () => {
+    it('renders charts correctly', async () => {
         render(<Dashboard />);
 
         await waitFor(() => {
@@ -239,44 +272,41 @@ describe("Dashboard Component", () => {
         });
 
         // Check if charts are rendered
-        expect(screen.getAllByTestId('responsive-container').length).toBe(3);
+        const containers = screen.getAllByTestId('responsive-container');
+        expect(containers.length).toBe(3);
         expect(screen.getByTestId("line-chart")).toBeInTheDocument();
         expect(screen.getByTestId("bar-chart")).toBeInTheDocument();
         expect(screen.getByTestId("pie-chart")).toBeInTheDocument();
+    });
 
-      })
-
-      it('verifies authentication headers are sent with requests', async () => {
+    it('verifies authentication headers are sent with requests', async () => {
         render(<Dashboard />);
         
         await waitFor(() => {
-          // Verify the token from localStorage was used in fetch calls
-          expect(global.fetch).toHaveBeenCalledWith(
-            expect.any(String),
-            expect.objectContaining({
-              headers: expect.objectContaining({
-                'Authorization': 'Bearer fake-token'
-              })
-            })
-          );
+            // At least one fetch call should have the authorization header
+            const fetchCalls = global.fetch.mock.calls;
+            const hasAuthHeader = fetchCalls.some(call => 
+                call[1]?.headers?.Authorization === 'Bearer fake-token'
+            );
+            
+            expect(hasAuthHeader).toBe(true);
         });
-      });
+    });
 
-      it('handles try again button in error state', async () => {
+    it('handles try again button in error state', async () => {
         // First render with error
         global.fetch.mockRejectedValueOnce(new Error('Network error'));
         
         // Mock window.location.reload
         const reloadMock = vi.fn();
-        Object.defineProperty(window, 'location', {
-          value: { reload: reloadMock },
-          writable: true
-        });
+        const originalLocation = window.location;
+        delete window.location;
+        window.location = { reload: reloadMock };
         
         render(<Dashboard />);
         
         await waitFor(() => {
-          expect(screen.getByText('Error')).toBeInTheDocument();
+            expect(screen.getByText('Error')).toBeInTheDocument();
         });
         
         // Click try again button
@@ -284,60 +314,85 @@ describe("Dashboard Component", () => {
         
         // Check if reload was called
         expect(reloadMock).toHaveBeenCalledTimes(1);
-      });
-})
+        
+        // Restore original window.location
+        window.location = originalLocation;
+    });
+});
 
 describe('Dashboard Utility Functions', () => {
-    
-    it('calculateMetric calculates sums correctly', async () => {
-      const mockDailySales = [
-        { date: '2025-04-20', total_sales: '1000.50', order_count: '5' },
-        { date: '2025-04-21', total_sales: '1200.25', order_count: '7' }
-      ];
-      
-      global.fetch = vi.fn().mockImplementation(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockDailySales)
-        });
-      });
-      
-      localStorageMock.getItem.mockReturnValue('fake-token');
-      
-      render(<Dashboard />);
-      
-      await waitFor(() => {
-        // Total sales sum: 1000.50 + 1200.25 = 2200.75
-        expect(screen.getByText('KES 2,200.75')).toBeInTheDocument();
+    it('calculates metrics correctly with valid data', async () => {
+        const mockData = [
+            { date: '2025-04-20', total_sales: '1000.50', order_count: '5', unique_customers: '3' },
+            { date: '2025-04-21', total_sales: '1200.25', order_count: '7', unique_customers: '4' }
+        ];
         
-        // Total orders sum: 5 + 7 = 12
-        expect(screen.getByText('12')).toBeInTheDocument();
-      });
+        global.fetch = vi.fn().mockImplementation((url) => {
+            if (url.includes("daily-sales")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve(mockData)
+                });
+            }
+            return Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve([])
+            });
+        });
+        
+        localStorageMock.getItem.mockReturnValue('fake-token');
+        
+        render(<Dashboard />);
+        
+        await waitFor(() => {
+            // Total sales: 1000.50 + 1200.25 = 2200.75
+            expect(screen.getByText('KES 2,200.75')).toBeInTheDocument();
+            
+            // Total orders: 5 + 7 = 12
+            const ordersElements = screen.getAllByText('12');
+            expect(ordersElements.length).toBeGreaterThan(0);
+            
+            // Unique customers: 3 + 4 = 7
+            expect(screen.getByText('7')).toBeInTheDocument();
+            
+            // Average order value: 2200.75 / 12 = 183.40
+            expect(screen.getByText('KES 183.40')).toBeInTheDocument();
+        });
     });
     
     it('handles missing or invalid data gracefully', async () => {
-      const mockDailySalesWithErrors = [
-        { date: '2025-04-20', total_sales: null, order_count: 'not-a-number' },
-        { date: '2025-04-21', total_sales: '1200.25', order_count: '7' }
-      ];
-      
-      global.fetch = vi.fn().mockImplementation(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockDailySalesWithErrors)
-        });
-      });
-      
-      localStorageMock.getItem.mockReturnValue('fake-token');
-      
-      render(<Dashboard />);
-      
-      await waitFor(() => {
-        // Only valid total_sales should be summed: 0 + 1200.25 = 1200.25
-        expect(screen.getByText('KES 1,200.25')).toBeInTheDocument();
+        const mockDataWithErrors = [
+            { date: '2025-04-20', total_sales: null, order_count: 'not-a-number', unique_customers: null },
+            { date: '2025-04-21', total_sales: '1200.25', order_count: '7', unique_customers: '4' }
+        ];
         
-        // Invalid order count should be treated as 0: 0 + 7 = 7
-        expect(screen.getByText('7')).toBeInTheDocument();
-      });
+        global.fetch = vi.fn().mockImplementation((url) => {
+            if (url.includes("daily-sales")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve(mockDataWithErrors)
+                });
+            }
+            return Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve([])
+            });
+        });
+        
+        localStorageMock.getItem.mockReturnValue('fake-token');
+        
+        render(<Dashboard />);
+        
+        await waitFor(() => {
+            // Only valid total_sales should be summed: 0 + 1200.25 = 1200.25
+            expect(screen.getByText('KES 1,200.25')).toBeInTheDocument();
+
+            // Unique customers: 0 + 4 = 4
+            expect(screen.getByText('4')).toBeInTheDocument();
+            
+            // Average order value calculated with valid values
+            // 1200.25 / 7 = 171.46...
+            expect(screen.getByText('KES 171.46')).toBeInTheDocument();
+        });
     });
-})
+});
