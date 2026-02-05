@@ -74,7 +74,7 @@ describe("Dashboard Component", () => {
         localStorageMock.getItem.mockReturnValue("fake-token");
 
         // Mock fetch
-        global.fetch = vi.fn();
+        window.fetch = vi.fn();
 
         // Configure fetch mock to return different data for different endpoints
         fetch.mockImplementation((url) => {
@@ -220,7 +220,7 @@ describe("Dashboard Component", () => {
         // Verify fetch was called with new date range
         await waitFor(() => {
             // We need to check that at least one fetch call contains these date parameters
-            const fetchCalls = global.fetch.mock.calls;
+            const fetchCalls = window.fetch.mock.calls;
             const hasStartDate = fetchCalls.some(call => 
                 call[0].includes('start_date=2025-04-15')
             );
@@ -284,7 +284,7 @@ describe("Dashboard Component", () => {
         
         await waitFor(() => {
             // At least one fetch call should have the authorization header
-            const fetchCalls = global.fetch.mock.calls;
+            const fetchCalls = window.fetch.mock.calls;
             const hasAuthHeader = fetchCalls.some(call => 
                 call[1]?.headers?.Authorization === 'Bearer fake-token'
             );
@@ -295,7 +295,7 @@ describe("Dashboard Component", () => {
 
     it('handles try again button in error state', async () => {
         // First render with error
-        global.fetch.mockRejectedValueOnce(new Error('Network error'));
+        window.fetch.mockRejectedValueOnce(new Error('Network error'));
         
         // Mock window.location.reload
         const reloadMock = vi.fn();
@@ -327,7 +327,7 @@ describe('Dashboard Utility Functions', () => {
             { date: '2025-04-21', total_sales: '1200.25', order_count: '7', unique_customers: '4' }
         ];
         
-        global.fetch = vi.fn().mockImplementation((url) => {
+        window.fetch = vi.fn().mockImplementation((url) => {
             if (url.includes("daily-sales")) {
                 return Promise.resolve({
                     ok: true,
@@ -366,7 +366,7 @@ describe('Dashboard Utility Functions', () => {
             { date: '2025-04-21', total_sales: '1200.25', order_count: '7', unique_customers: '4' }
         ];
         
-        global.fetch = vi.fn().mockImplementation((url) => {
+        window.fetch = vi.fn().mockImplementation((url) => {
             if (url.includes("daily-sales")) {
                 return Promise.resolve({
                     ok: true,
