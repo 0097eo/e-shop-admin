@@ -20,7 +20,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://eshop-zkkr.onrender.com/',
+        target: 'https://eshop-pk10.onrender.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/'),
       }
