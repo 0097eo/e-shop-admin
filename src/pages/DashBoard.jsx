@@ -15,7 +15,6 @@ const calculateMetric = (data, metricKey, parseFunc = parseFloat, decimals = 2) 
   return Number(value.toFixed(decimals));
 };
 
-
 const formatNumber = (value, decimals = 2) => {
   if (value === null || value === undefined) return '0';
   return Number(value).toLocaleString('en-US', { 
@@ -111,7 +110,6 @@ const Dashboard = () => {
         throw new Error('Failed to update metrics');
       }
 
-      // Refresh the dashboard data after updating metrics
       const newDateRange = { ...dateRange };
       setDateRange(newDateRange);
       
@@ -123,7 +121,6 @@ const Dashboard = () => {
     }
   };
 
-  // Memoized calculations to prevent unnecessary re-renders
   const dashboardMetrics = useMemo(() => {
     const totalSales = calculateMetric(dailySales, 'total_sales');
     const totalOrders = calculateMetric(dailySales, 'order_count', parseInt);
@@ -138,7 +135,6 @@ const Dashboard = () => {
     };
   }, [dailySales]);
 
-  // Process top products with memoization
   const topProducts = useMemo(() => {
     return productPerformance
       .reduce((acc, curr) => {
@@ -161,7 +157,6 @@ const Dashboard = () => {
       .slice(0, 5);
   }, [productPerformance]);
 
-  // Process category data for pie chart
   const categoryData = useMemo(() => {
     return categoryPerformance
       .reduce((acc, curr) => {
@@ -186,20 +181,20 @@ const Dashboard = () => {
   
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900">
-        <div className="text-2xl text-gray-300">Loading dashboard...</div>
+      <div className="flex items-center justify-center min-h-screen p-4 bg-gray-900">
+        <div className="text-xl text-center text-gray-300 md:text-2xl">Loading dashboard...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900">
-        <div className="p-6 bg-gray-900 rounded-lg shadow-lg">
-          <h2 className="mb-4 text-xl text-red-400">Error</h2>
-          <p className="text-gray-300">{error}</p>
+      <div className="flex items-center justify-center min-h-screen p-4 bg-gray-900">
+        <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+          <h2 className="mb-4 text-lg text-red-400 md:text-xl">Error</h2>
+          <p className="text-sm text-gray-300 md:text-base">{error}</p>
           <button 
-            className="px-4 py-2 mt-4 text-white bg-blue-600 rounded hover:bg-blue-700"
+            className="w-full px-4 py-2 mt-4 text-sm text-white transition-colors bg-blue-600 rounded md:text-base hover:bg-blue-700"
             onClick={() => window.location.reload()}
           >
             Try Again
@@ -212,13 +207,13 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
-      <header className="bg-gray-900 shadow">
-        <div className="flex items-center justify-between px-4 py-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-white">Sales Analytics Dashboard</h1>
+      <header className="bg-gray-800 shadow">
+        <div className="flex flex-col items-start justify-between gap-4 px-4 py-4 mx-auto max-w-7xl sm:flex-row sm:items-center sm:px-6 lg:px-8">
+          <h1 className="text-xl font-bold text-white sm:text-2xl">Sales Analytics Dashboard</h1>
           <button
             onClick={updateMetrics}
             disabled={updating}
-            className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="flex items-center justify-center w-full px-4 py-2 text-sm text-white transition-colors bg-blue-600 rounded-md sm:w-auto hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50"
           >
             <RefreshCw size={16} className={`mr-2 ${updating ? 'animate-spin' : ''}`} />
             {updating ? 'Updating...' : 'Update Metrics'}
@@ -226,33 +221,33 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 bg-gray-900">
+      <main className="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* Date Range Selector */}
-        <div className="p-4 mb-6 bg-gray-900 rounded-lg shadow">
-          <div className="flex flex-col items-start space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+        <div className="p-4 mb-6 bg-gray-800 border border-gray-700 rounded-lg shadow">
+          <div className="flex flex-col space-y-4">
             <div className="flex items-center">
               <Calendar size={20} className="mr-2 text-gray-400" />
-              <h2 className="text-lg font-medium text-gray-300">Date Range</h2>
+              <h2 className="text-base font-medium text-gray-300 sm:text-lg">Date Range</h2>
             </div>
-            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor='start-date' className="block text-sm font-medium text-gray-400">Start Date</label>
+                <label htmlFor='start-date' className="block text-xs font-medium text-gray-400 sm:text-sm">Start Date</label>
                 <input
                   id='start-date'
                   type="date"
                   value={dateRange.startDate}
                   onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})}
-                  className="block w-full px-3 py-2 mt-1 text-gray-300 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="block w-full px-3 py-2 mt-1 text-sm text-gray-300 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
-                <label htmlFor="end-date" className="block text-sm font-medium text-gray-400">End Date</label>
+                <label htmlFor="end-date" className="block text-xs font-medium text-gray-400 sm:text-sm">End Date</label>
                 <input
                   id='end-date'
                   type="date"
                   value={dateRange.endDate}
                   onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})}
-                  className="block w-full px-3 py-2 mt-1 text-gray-300 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="block w-full px-3 py-2 mt-1 text-sm text-gray-300 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
@@ -260,89 +255,98 @@ const Dashboard = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4 border border-gray-700 rounded-lg">
-          <div className="p-6 bg-gray-900 shadow">
+        <div className="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg shadow sm:p-6">
             <div className="flex items-center">
-              <div className="p-3 mr-4 text-white bg-blue-600 rounded-full">
-                <DollarSign size={24} />
+              <div className="flex-shrink-0 p-2 mr-3 text-white bg-blue-600 rounded-full sm:p-3 sm:mr-4">
+                <DollarSign size={20} className="sm:w-6 sm:h-6" />
               </div>
-              <div>
-                <p className="mb-2 text-sm font-medium text-gray-400">Total Sales</p>
-                <p className="text-2xl font-semibold text-white">KES {formatNumber(dashboardMetrics.totalSales)}</p>
+              <div className="min-w-0">
+                <p className="mb-1 text-xs font-medium text-gray-400 sm:text-sm sm:mb-2">Total Sales</p>
+                <p className="text-lg font-semibold text-white truncate sm:text-2xl">KES {formatNumber(dashboardMetrics.totalSales)}</p>
               </div>
             </div>
           </div>
 
-          <div className="p-6 bg-gray-900 rounded-lg shadow">
+          <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg shadow sm:p-6">
             <div className="flex items-center">
-              <div className="p-3 mr-4 text-white bg-green-600 rounded-full">
-                <ShoppingBag size={24} />
+              <div className="flex-shrink-0 p-2 mr-3 text-white bg-green-600 rounded-full sm:p-3 sm:mr-4">
+                <ShoppingBag size={20} className="sm:w-6 sm:h-6" />
               </div>
-              <div>
-                <p className="mb-2 text-sm font-medium text-gray-400">Total Orders</p>
-                <p className="text-2xl font-semibold text-white">{formatNumber(dashboardMetrics.totalOrders, 0)}</p>
+              <div className="min-w-0">
+                <p className="mb-1 text-xs font-medium text-gray-400 sm:text-sm sm:mb-2">Total Orders</p>
+                <p className="text-lg font-semibold text-white truncate sm:text-2xl">{formatNumber(dashboardMetrics.totalOrders, 0)}</p>
               </div>
             </div>
           </div>
 
-          <div className="p-6 bg-gray-900 rounded-lg shadow">
+          <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg shadow sm:p-6">
             <div className="flex items-center">
-              <div className="p-3 mr-4 text-white bg-purple-600 rounded-full">
-                <TrendingUp size={24} />
+              <div className="flex-shrink-0 p-2 mr-3 text-white bg-purple-600 rounded-full sm:p-3 sm:mr-4">
+                <TrendingUp size={20} className="sm:w-6 sm:h-6" />
               </div>
-              <div>
-                <p className="mb-2 text-sm font-medium text-gray-400">Avg. Order Value</p>
-                <p className="text-2xl font-semibold text-white">KES {formatNumber(dashboardMetrics.avgOrderValue)}</p>
+              <div className="min-w-0">
+                <p className="mb-1 text-xs font-medium text-gray-400 sm:text-sm sm:mb-2">Avg. Order Value</p>
+                <p className="text-lg font-semibold text-white truncate sm:text-2xl">KES {formatNumber(dashboardMetrics.avgOrderValue)}</p>
               </div>
             </div>
           </div>
 
-          <div className="p-6 bg-gray-900 rounded-lg shadow">
+          <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg shadow sm:p-6">
             <div className="flex items-center">
-              <div className="p-3 mr-4 text-white bg-yellow-600 rounded-full">
-                <Users size={24} />
+              <div className="flex-shrink-0 p-2 mr-3 text-white bg-yellow-600 rounded-full sm:p-3 sm:mr-4">
+                <Users size={20} className="sm:w-6 sm:h-6" />
               </div>
-              <div>
-                <p className="mb-2 text-sm font-medium text-gray-400">Unique Customers</p>
-                <p className="text-2xl font-semibold text-white">{formatNumber(dashboardMetrics.uniqueCustomers, 0)}</p>
+              <div className="min-w-0">
+                <p className="mb-1 text-xs font-medium text-gray-400 sm:text-sm sm:mb-2">Unique Customers</p>
+                <p className="text-lg font-semibold text-white truncate sm:text-2xl">{formatNumber(dashboardMetrics.uniqueCustomers, 0)}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Charts Grid */}
-        <div className="grid gap-6 mb-8 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 mb-8 lg:gap-6 lg:grid-cols-2">
           {/* Daily Sales Chart */}
-          <div className="p-6 bg-gray-900 rounded-lg shadow border border-gray-700">
+          <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg shadow sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-gray-300">Daily Sales</h2>
+              <h2 className="text-base font-medium text-gray-300 sm:text-lg">Daily Sales</h2>
             </div>
-            <div className="h-64">
+            <div className="h-64 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={dailySales}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
-                  <XAxis dataKey="date" stroke="#D1D5DB" />
-                  <YAxis stroke="#D1D5DB" />
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="#D1D5DB" 
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis 
+                    stroke="#D1D5DB" 
+                    tick={{ fontSize: 12 }}
+                  />
                   <Tooltip 
                     formatter={(value) => [`KES ${formatNumber(value)}`, '']} 
-                    contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#fff' }} 
+                    contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#fff', fontSize: '12px' }} 
                   />
-                  <Legend />
+                  <Legend wrapperStyle={{ fontSize: '12px' }} />
                   <Line 
                     type="monotone" 
                     dataKey="total_sales" 
                     stroke="#0088FE" 
                     name="Sales (KES)" 
-                    activeDot={{ r: 8 }} 
+                    activeDot={{ r: 6 }} 
+                    strokeWidth={2}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="order_count" 
                     stroke="#00C49F" 
                     name="Orders" 
+                    strokeWidth={2}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -350,30 +354,37 @@ const Dashboard = () => {
           </div>
 
           {/* Top Products Chart */}
-          <div className="p-6 bg-gray-900 rounded-lg shadow border border-gray-700">
+          <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg shadow sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-gray-300">Top Products by Revenue</h2>
+              <h2 className="text-base font-medium text-gray-300 sm:text-lg">Top Products by Revenue</h2>
               <Package size={20} className="text-gray-400" />
             </div>
-            <div className="h-64">
+            <div className="h-64 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={topProducts}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
                   layout="vertical"
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
                   <XAxis 
                     type="number" 
                     stroke="#D1D5DB" 
-                    tickFormatter={(value) => `KES ${formatNumber(value)}`}
+                    tick={{ fontSize: 12 }}
+                    tickFormatter={(value) => `${formatNumber(value / 1000)}k`}
                   />
-                  <YAxis dataKey="name" type="category" width={120} stroke="#D1D5DB" />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    width={80} 
+                    stroke="#D1D5DB" 
+                    tick={{ fontSize: 10 }}
+                  />
                   <Tooltip 
                     formatter={(value) => [`KES ${formatNumber(value)}`, '']} 
-                    contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#fff' }} 
+                    contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#fff', fontSize: '12px' }} 
                   />
-                  <Legend />
+                  <Legend wrapperStyle={{ fontSize: '12px' }} />
                   <Bar dataKey="revenue" name="Revenue (KES)" fill="#8884d8" />
                 </BarChart>
               </ResponsiveContainer>
@@ -381,12 +392,12 @@ const Dashboard = () => {
           </div>
 
           {/* Category Distribution Pie Chart */}
-          <div className="p-6 bg-gray-900 rounded-lg shadow border border-gray-700">
+          <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg shadow sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-gray-300">Category Revenue Distribution</h2>
+              <h2 className="text-base font-medium text-gray-300 sm:text-lg">Category Revenue Distribution</h2>
               <Grid size={20} className="text-gray-400" />
             </div>
-            <div className="h-64">
+            <div className="h-64 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -394,11 +405,11 @@ const Dashboard = () => {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    outerRadius={80}
+                    outerRadius={window.innerWidth < 640 ? 60 : 80}
                     fill="#8884d8"
                     dataKey="revenue"
                     nameKey="name"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                   >
                     {categoryData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -406,52 +417,52 @@ const Dashboard = () => {
                   </Pie>
                   <Tooltip 
                     formatter={(value) => [`KES ${formatNumber(value)}`, '']} 
-                    contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#fff' }} 
+                    contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#fff', fontSize: '12px' }} 
                   />
-                  <Legend wrapperStyle={{ color: '#D1D5DB' }} />
+                  <Legend wrapperStyle={{ color: '#D1D5DB', fontSize: '11px' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Customer Insights Table */}
-          <div className="p-6 bg-gray-900 rounded-lg shadow border border-gray-700">
+          <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg shadow sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-gray-300">Top Customers</h2>
+              <h2 className="text-base font-medium text-gray-300 sm:text-lg">Top Customers</h2>
               <Users size={20} className="text-gray-400" />
             </div>
-            <div className="h-64 overflow-auto">
-              <table className="w-full min-w-full divide-y divide-gray-700">
+            <div className="h-64 overflow-x-auto sm:h-72">
+              <table className="min-w-full divide-y divide-gray-700">
                 <thead className="bg-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
+                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-400 uppercase sm:px-4 sm:py-3">
                       Customer
                     </th>
-                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
-                      Total Spent
+                    <th className="px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-400 uppercase sm:px-4 sm:py-3">
+                      Total
                     </th>
-                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
+                    <th className="hidden px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-400 uppercase sm:table-cell sm:px-4 sm:py-3">
                       Orders
                     </th>
-                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
+                    <th className="hidden px-3 py-2 text-xs font-medium tracking-wider text-left text-gray-400 uppercase md:table-cell sm:px-4 sm:py-3">
                       Avg. Order
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-gray-900 divide-y divide-gray-700">
+                <tbody className="bg-gray-800 divide-y divide-gray-700">
                   {customerInsights.slice(0, 10).map((customer) => (
                     <tr key={customer.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-300">{customer.user_email}</div>
+                      <td className="px-3 py-2 text-xs whitespace-nowrap sm:px-4 sm:py-3 sm:text-sm">
+                        <div className="text-gray-300 truncate max-w-[150px]">{customer.user_email}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-300">KES {formatNumber(customer.total_spent)}</div>
+                      <td className="px-3 py-2 text-xs whitespace-nowrap sm:px-4 sm:py-3 sm:text-sm">
+                        <div className="text-gray-300">{formatNumber(customer.total_spent)}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-300">{formatNumber(customer.orders_count, 0)}</div>
+                      <td className="hidden px-3 py-2 text-xs whitespace-nowrap sm:table-cell sm:px-4 sm:py-3 sm:text-sm">
+                        <div className="text-gray-300">{formatNumber(customer.orders_count, 0)}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-300">KES {formatNumber(customer.average_order_value)}</div>
+                      <td className="hidden px-3 py-2 text-xs whitespace-nowrap md:table-cell sm:px-4 sm:py-3 sm:text-sm">
+                        <div className="text-gray-300">{formatNumber(customer.average_order_value)}</div>
                       </td>
                     </tr>
                   ))}
