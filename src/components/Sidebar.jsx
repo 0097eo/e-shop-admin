@@ -5,12 +5,13 @@ import {
   LogOut,
   ShoppingBasket,
   ShoppingBag,
-  TrendingUp
+  TrendingUp,
+  X
 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import logoImage from '../assets/logo.png';
 
-const Sidebar = () => {
+const Sidebar = ({ onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useContext(AuthContext);
@@ -29,9 +30,17 @@ const Sidebar = () => {
 
   return (
     <div className="w-64 bg-gray-900 h-full flex flex-col">
-      <div className="flex items-center px-4 pt-4 pb-2">
-        <img src={logoImage} alt="Logo" className="h-8 w-auto mr-2" />
-        <div className="text-gray-200 font-semibold">Ideal Admin</div>
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <div className="flex items-center">
+          <img src={logoImage} alt="Logo" className="h-8 w-auto mr-2" />
+          <div className="text-gray-200 font-semibold">Ideal Admin</div>
+        </div>
+        <button
+          onClick={onClose}
+          className="lg:hidden text-gray-400 hover:text-gray-200 p-1"
+        >
+          <X className="w-6 h-6" />
+        </button>
       </div>
       
       <nav className="mt-6 flex-grow">
@@ -43,7 +52,7 @@ const Sidebar = () => {
               onClick={() => navigate(item.path)}
               className={`w-full flex items-center px-4 py-3 text-sm ${
                 isActive 
-                  ? 'bg-teal-500/20 text-teal-500 rounded-md mx-2' 
+                  ? 'bg-teal-500/20 text-teal-500 rounded-md' 
                   : 'text-gray-400 hover:text-gray-200'
               }`}
             >
@@ -53,7 +62,6 @@ const Sidebar = () => {
           );
         })}
       </nav>
-      
       
       <div className="mt-auto mb-6 px-4">
         <button
