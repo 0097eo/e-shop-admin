@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Trash2, Edit, Plus, Search, X, Filter, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
 const ProductManagement = () => {
@@ -12,7 +12,7 @@ const ProductManagement = () => {
     price: '',
     category: '',
     primary_material: '',
-    condition: 'new',
+    condition: 'NEW',
     is_available: true,
     image: null,
     stock: 1
@@ -36,7 +36,7 @@ const ProductManagement = () => {
   
   const token = localStorage.getItem('access');
 
-  const getHeaders = (includeMultipart = false) => {
+  const getHeaders = useCallback((includeMultipart = false) => {
     const headers = {
       Authorization: `Bearer ${token}`
     };
@@ -46,14 +46,9 @@ const ProductManagement = () => {
     }
     
     return headers;
-  };
+  }, [token]);
   
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
-  
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       let url = `/api/products/products/?`;
@@ -77,14 +72,14 @@ const ProductManagement = () => {
       setProducts(data.results || []);
       setError(null);
     } catch (err) {
-      setError(err.message);
+      setError('Error fetching products: ' + err.message);
       console.error('Error fetching products:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, filters, getHeaders]);
   
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch(`/api/products/categories/`, {
         method: 'GET',
@@ -94,11 +89,16 @@ const ProductManagement = () => {
       if (!response.ok) throw new Error('Failed to fetch categories');
       
       const data = await response.json();
-      setCategories(data);
+      setCategories(data.results || data);
     } catch (err) {
       console.error('Error fetching categories:', err);
     }
-  };
+  }, [getHeaders]);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, [fetchProducts, fetchCategories]);
   
   const createProduct = async (e) => {
     e.preventDefault();
@@ -244,7 +244,7 @@ const ProductManagement = () => {
       price: '',
       category: '',
       primary_material: '',
-      condition: 'new',
+      condition: 'NEW',
       is_available: true,
       image: null,
       stock: 1
@@ -288,8 +288,9 @@ const ProductManagement = () => {
       <form onSubmit={mode === 'create' ? createProduct : updateProduct}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-200">Name</label>
+            <label htmlFor="product-name" className="block text-sm font-medium text-gray-200">Name</label>
             <input
+              id="product-name"
               type="text"
               name="name"
               value={currentProduct.name}
@@ -300,8 +301,9 @@ const ProductManagement = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-200">Price</label>
+            <label htmlFor="product-price" className="block text-sm font-medium text-gray-200">Price</label>
             <input
+              id="product-price"
               type="number"
               name="price"
               value={currentProduct.price}
@@ -314,9 +316,10 @@ const ProductManagement = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-200">Category</label>
+            <label htmlFor="product-category" className="block text-sm font-medium text-gray-200">Category</label>
             <div className="flex space-x-2">
               <select
+                id="product-category"
                 name="category"
                 value={currentProduct.category}
                 onChange={handleProductChange}
@@ -331,7 +334,7 @@ const ProductManagement = () => {
               <button
                 type="button"
                 onClick={() => setShowCategoryForm(!showCategoryForm)}
-                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <Plus size={16} />
               </button>
@@ -339,8 +342,9 @@ const ProductManagement = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-200">Primary Material</label>
+            <label htmlFor="product-material" className="block text-sm font-medium text-gray-200">Primary Material</label>
             <select
+              id="product-material"
               name="primary_material"
               value={currentProduct.primary_material}
               onChange={handleProductChange}
@@ -358,8 +362,9 @@ const ProductManagement = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-200">Stock</label>
+            <label htmlFor="product-stock" className="block text-sm font-medium text-gray-200">Stock</label>
             <input
+              id="product-stock"
               type="number"
               name="stock"
               value={currentProduct.stock}
@@ -371,8 +376,9 @@ const ProductManagement = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-200">Condition</label>
+            <label htmlFor="product-condition" className="block text-sm font-medium text-gray-200">Condition</label>
             <select
+              id="product-condition"
               name="condition"
               value={currentProduct.condition}
               onChange={handleProductChange}
@@ -386,8 +392,9 @@ const ProductManagement = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-200">Image</label>
+            <label htmlFor="product-image" className="block text-sm font-medium text-gray-200">Image</label>
             <input
+              id="product-image"
               type="file"
               name="image"
               onChange={handleProductChange}
@@ -397,19 +404,21 @@ const ProductManagement = () => {
           
           <div className="flex items-center h-10 mt-6">
             <input
+              id="product-available"
               type="checkbox"
               name="is_available"
               checked={currentProduct.is_available}
               onChange={handleProductChange}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-600 rounded"
+              className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-600 rounded"
             />
-            <label className="ml-2 block text-sm text-gray-200">Available for purchase</label>
+            <label htmlFor="product-available" className="ml-2 block text-sm text-gray-200">Available for purchase</label>
           </div>
         </div>
         
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-200">Description</label>
+          <label htmlFor="product-description" className="block text-sm font-medium text-gray-200">Description</label>
           <textarea
+            id="product-description"
             name="description"
             value={currentProduct.description}
             onChange={handleProductChange}
@@ -434,7 +443,7 @@ const ProductManagement = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+            className={`inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
               isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
             }`}
           >
@@ -461,8 +470,9 @@ const ProductManagement = () => {
       
       <form onSubmit={createCategory}>
         <div>
-          <label className="block text-sm font-medium text-gray-200">Category Name</label>
+          <label htmlFor="category-name" className="block text-sm font-medium text-gray-200">Category Name</label>
           <input
+            id="category-name"
             type="text"
             value={newCategory.name}
             onChange={(e) => setNewCategory({ name: e.target.value })}
@@ -481,7 +491,7 @@ const ProductManagement = () => {
           </button>
           <button
             type="submit"
-            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
           >
             Create Category
           </button>
@@ -534,7 +544,7 @@ const ProductManagement = () => {
         <div className="flex space-x-2">
           <button
             onClick={() => setMode('create')}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
           >
             <Plus size={16} className="mr-2" /> New Product
           </button>
@@ -581,7 +591,7 @@ const ProductManagement = () => {
           </div>
           <button
             onClick={fetchProducts}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 rounded-r-md flex items-center"
+            className="bg-teal-600 hover:bg-teal-700 text-white px-4 rounded-r-md flex items-center"
           >
             <Search size={16} />
           </button>
@@ -592,8 +602,9 @@ const ProductManagement = () => {
             <form onSubmit={applyFilters}>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-200">Category</label>
+                  <label htmlFor="filter-category" className="block text-sm font-medium text-gray-200">Category</label>
                   <select
+                    id="filter-category"
                     name="category"
                     value={filters.category}
                     onChange={handleFilterChange}
@@ -607,8 +618,9 @@ const ProductManagement = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-200">Material</label>
+                  <label htmlFor="filter-material" className="block text-sm font-medium text-gray-200">Material</label>
                   <input
+                    id="filter-material"
                     type="text"
                     name="material"
                     value={filters.material}
@@ -618,8 +630,9 @@ const ProductManagement = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-200">Condition</label>
+                  <label htmlFor="filter-condition" className="block text-sm font-medium text-gray-200">Condition</label>
                   <select
+                    id="filter-condition"
                     name="condition"
                     value={filters.condition}
                     onChange={handleFilterChange}
@@ -635,8 +648,9 @@ const ProductManagement = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-200">Min Price</label>
+                  <label htmlFor="filter-min-price" className="block text-sm font-medium text-gray-200">Min Price</label>
                   <input
+                    id="filter-min-price"
                     type="number"
                     name="minPrice"
                     value={filters.minPrice}
@@ -647,8 +661,9 @@ const ProductManagement = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-200">Max Price</label>
+                  <label htmlFor="filter-max-price" className="block text-sm font-medium text-gray-200">Max Price</label>
                   <input
+                    id="filter-max-price"
                     type="number"
                     name="maxPrice"
                     value={filters.maxPrice}
@@ -659,8 +674,9 @@ const ProductManagement = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-200">Availability</label>
+                  <label htmlFor="filter-available" className="block text-sm font-medium text-gray-200">Availability</label>
                   <select
+                    id="filter-available"
                     name="available"
                     value={filters.available}
                     onChange={handleFilterChange}
@@ -683,7 +699,7 @@ const ProductManagement = () => {
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                 >
                   Apply Filters
                 </button>
@@ -785,7 +801,7 @@ const ProductManagement = () => {
         <h2 className="text-xl font-semibold text-white">Categories</h2>
         <button
           onClick={() => setShowCategoryForm(!showCategoryForm)}
-          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
         >
           <Plus size={16} className="mr-1" /> Add Category
         </button>
