@@ -91,12 +91,14 @@ const Products = () => {
     setError(null);
     try {
       const response = await axios.get('/api/salesanalysis/product-performance/', getAuthConfig());
-      setProductPerformance(response.data);
+      const data = response?.data ?? [];
+      setProductPerformance(Array.isArray(data) ? data : []);
     } catch (err) {
       if (err.response && err.response.status === 401) {
         logout();
       }
       setError('Failed to fetch product performance data');
+      setProductPerformance([]);
       console.error(err);
     } finally {
       setLoading(false);
@@ -108,8 +110,9 @@ const Products = () => {
     setError(null);
     try {
       const response = await axios.get(`/api/salesanalysis/product-performance/${id}/`, getAuthConfig());
-      setSelectedProduct(response.data);
-      setFormData(response.data);
+      const data = response?.data ?? {};
+      setSelectedProduct(data);
+      setFormData(data);
     } catch (err) {
       if (err.response && err.response.status === 401) {
         logout();
@@ -134,13 +137,15 @@ const Products = () => {
         params: reportParams,
         ...getAuthConfig()
       });
-      setProductPerformance(response.data);
+      const data = response?.data ?? [];
+      setProductPerformance(Array.isArray(data) ? data : []);
       setCurrentView('dashboard');
     } catch (err) {
       if (err.response && err.response.status === 401) {
         logout();
       }
       setError('Failed to generate report');
+      setProductPerformance([]);
       console.error(err);
     } finally {
       setLoading(false);
@@ -195,7 +200,7 @@ const Products = () => {
   };
 
   const sortedData = React.useMemo(() => {
-    let sortableItems = [...productPerformance];
+    let sortableItems = Array.isArray(productPerformance) ? [...productPerformance] : [];
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
         if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -295,18 +300,18 @@ const Products = () => {
 
   const renderForm = () => {
     return (
-      <div className="bg-gray-900 rounded-lg shadow p-6 border border-gray-700">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-200">Edit Product Performance</h2>
+      <div className="bg-gray-900 rounded-lg shadow p-4 sm:p-6 border border-gray-700">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-200">Edit Product Performance</h2>
         </div>
 
         {error && (
-          <div className="bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded mb-4">
+          <div className="bg-red-900/30 border border-red-700 text-red-300 px-3 py-2 sm:px-4 sm:py-3 rounded mb-4 text-sm sm:text-base">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Date</label>
             <input
@@ -314,7 +319,7 @@ const Products = () => {
               name="date"
               value={formData.date}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200 text-sm sm:text-base"
               required
             />
           </div>
@@ -326,7 +331,7 @@ const Products = () => {
               name="product"
               value={formData.product}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200 text-sm sm:text-base"
               required
             />
           </div>
@@ -338,7 +343,7 @@ const Products = () => {
               name="units_sold"
               value={formData.units_sold}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200 text-sm sm:text-base"
               required
             />
           </div>
@@ -350,12 +355,12 @@ const Products = () => {
               name="revenue"
               value={formData.revenue}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200 text-sm sm:text-base"
               required
             />
           </div>
 
-          <div>
+          <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-300 mb-1">Average Rating</label>
             <input
               type="number"
@@ -365,20 +370,20 @@ const Products = () => {
               step="0.1"
               min="0"
               max="5"
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200 text-sm sm:text-base"
             />
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end space-x-3">
+        <div className="mt-6 flex flex-col sm:flex-row sm:justify-end gap-3">
           <button
-            className="px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-900"
+            className="w-full sm:w-auto px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-900 text-sm sm:text-base"
             onClick={() => setCurrentView('list')}
           >
             Cancel
           </button>
           <button
-            className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700"
+            className="w-full sm:w-auto px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 text-sm sm:text-base"
             onClick={updateProductPerformance}
             disabled={loading}
           >
@@ -391,16 +396,16 @@ const Products = () => {
 
   const renderReportForm = () => {
     return (
-      <div className="bg-gray-900 rounded-lg shadow p-6 border border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-200 mb-4">Generate Product Performance Report</h2>
+      <div className="bg-gray-900 rounded-lg shadow p-4 sm:p-6 border border-gray-700">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-200 mb-4">Generate Product Performance Report</h2>
 
         {error && (
-          <div className="bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded mb-4">
+          <div className="bg-red-900/30 border border-red-700 text-red-300 px-3 py-2 sm:px-4 sm:py-3 rounded mb-4 text-sm sm:text-base">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Start Date</label>
             <input
@@ -408,7 +413,7 @@ const Products = () => {
               name="start_date"
               value={reportParams.start_date}
               onChange={handleReportParamChange}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200 text-sm sm:text-base"
               required
             />
           </div>
@@ -420,21 +425,21 @@ const Products = () => {
               name="end_date"
               value={reportParams.end_date}
               onChange={handleReportParamChange}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-200 text-sm sm:text-base"
               required
             />
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end space-x-3">
+        <div className="mt-6 flex flex-col sm:flex-row sm:justify-end gap-3">
           <button
-            className="px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-900"
+            className="w-full sm:w-auto px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-900 text-sm sm:text-base"
             onClick={() => setCurrentView('list')}
           >
             Cancel
           </button>
           <button
-            className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 flex items-center"
+            className="w-full sm:w-auto px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 flex items-center justify-center text-sm sm:text-base"
             onClick={generateReport}
             disabled={loading}
           >
@@ -463,25 +468,25 @@ const Products = () => {
     };
     
     return (
-      <div className="space-y-6">
-        <div className="bg-gray-900 rounded-lg shadow p-6 border border-gray-700">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-200">Performance Trend</h2>
-            <div className="flex space-x-2">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="bg-gray-900 rounded-lg shadow p-4 sm:p-6 border border-gray-700">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-200">Performance Trend</h2>
+            <div className="flex flex-wrap gap-2">
               <button
-                className={`px-3 py-1 rounded-md text-sm ${activeChart === 'revenue' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300'}`}
+                className={`px-3 py-1 rounded-md text-xs sm:text-sm ${activeChart === 'revenue' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300'}`}
                 onClick={() => setActiveChart('revenue')}
               >
                 Revenue
               </button>
               <button
-                className={`px-3 py-1 rounded-md text-sm ${activeChart === 'units' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300'}`}
+                className={`px-3 py-1 rounded-md text-xs sm:text-sm ${activeChart === 'units' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300'}`}
                 onClick={() => setActiveChart('units')}
               >
                 Units Sold
               </button>
               <button
-                className={`px-3 py-1 rounded-md text-sm ${activeChart === 'rating' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300'}`}
+                className={`px-3 py-1 rounded-md text-xs sm:text-sm ${activeChart === 'rating' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300'}`}
                 onClick={() => setActiveChart('rating')}
               >
                 Ratings
@@ -489,24 +494,32 @@ const Products = () => {
             </div>
           </div>
           
-          <div className="h-64">
+          <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <RechartsLineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <RechartsLineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                <XAxis dataKey="name" stroke="#999" />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="#999" 
+                  tick={{ fontSize: 12 }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
                 <YAxis 
                   stroke="#999"
+                  tick={{ fontSize: 12 }}
                   domain={activeChart === 'revenue' ? [0, getRevenueMaxDomain()] : activeChart === 'rating' ? [0, 5] : [0, 'auto']}
                 />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#f3f4f6' }}
+                  contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#f3f4f6', fontSize: 12 }}
                   labelStyle={{ color: '#f3f4f6' }}
                   formatter={(value, name) => {
                     if (name === "Revenue (KES)") return formatCurrency(value);
                     return value;
                   }}
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
                 {activeChart === 'revenue' && (
                   <Line 
                     type="monotone" 
@@ -542,10 +555,10 @@ const Products = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gray-900 rounded-lg shadow p-6 border border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-200 mb-4">Revenue by Product</h2>
-            <div className="h-64">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-gray-900 rounded-lg shadow p-4 sm:p-6 border border-gray-700">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-200 mb-4">Revenue by Product</h2>
+            <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
               <RechartsPieChart>
                 <Pie
@@ -553,7 +566,7 @@ const Products = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={true}
-                  outerRadius={80}
+                  outerRadius={window.innerWidth < 640 ? 60 : 80}
                   fill="#8884d8"
                   dataKey="revenue"
                   nameKey="name"
@@ -567,25 +580,32 @@ const Products = () => {
                 </Pie>
                 <Tooltip 
                   formatter={(value) => formatCurrency(value)}
-                  contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#f3f4f6' }}
+                  contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#f3f4f6', fontSize: 12 }}
                 />
               </RechartsPieChart>
               </ResponsiveContainer>
             </div>
           </div>
           
-          <div className="bg-gray-900 rounded-lg shadow p-6 border border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-200 mb-4">Units Sold by Product</h2>
-            <div className="h-64">
+          <div className="bg-gray-900 rounded-lg shadow p-4 sm:p-6 border border-gray-700">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-200 mb-4">Units Sold by Product</h2>
+            <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={pieData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <BarChart data={pieData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                  <XAxis dataKey="name" stroke="#999" />
-                  <YAxis stroke="#999" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#f3f4f6' }}
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#999" 
+                    tick={{ fontSize: 12 }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
                   />
-                  <Legend />
+                  <YAxis stroke="#999" tick={{ fontSize: 12 }} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#f3f4f6', fontSize: 12 }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
                   <Bar dataKey="units" name="Units Sold" fill="#8884d8">
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -597,9 +617,9 @@ const Products = () => {
           </div>
         </div>
         
-        <div className="flex justify-end">
+        <div className="flex justify-center sm:justify-end">
           <button
-            className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 flex items-center"
+            className="w-full sm:w-auto px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 flex items-center justify-center text-sm sm:text-base"
             onClick={() => setCurrentView('list')}
           >
             <Table size={16} className="mr-2" />
@@ -612,119 +632,128 @@ const Products = () => {
 
   const renderProductPerformanceTable = () => {
     return (
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-gray-900 rounded-lg shadow border border-gray-700">
-          <thead>
-            <tr className="border-b border-gray-700">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('date')}>
-                <div className="flex items-center">
-                  Date
-                  {sortConfig.key === 'date' && (
-                    sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('product')}>
-                <div className="flex items-center">
-                  Product Name
-                  {sortConfig.key === 'product' && (
-                    sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('units_sold')}>
-                <div className="flex items-center">
-                  Units Sold
-                  {sortConfig.key === 'units_sold' && (
-                    sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('revenue')}>
-                <div className="flex items-center">
-                  Revenue
-                  {sortConfig.key === 'revenue' && (
-                    sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('average_rating')}>
-                <div className="flex items-center">
-                  Avg. Rating
-                  {sortConfig.key === 'average_rating' && (
-                    sortConfig.direction === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-700">
-            {sortedData.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-900">
-                <td className="px-6 py-4 whitespace-nowrap text-gray-300">{new Date(item.date).toLocaleDateString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-300">{item.product_name || `Product ID: ${item.product}`}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-300">{item.units_sold.toLocaleString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-300">{formatCurrency(item.revenue)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-300">{formatRating(item.average_rating)}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex space-x-2">
-                    <button
-                      className="text-teal-400 hover:text-teal-300"
-                      onClick={() => {
-                        fetchProductDetail(item.id);
-                        setCurrentView('detail');
-                      }}
-                    >
-                      <Edit size={18} />
-                    </button>
-                    <button
-                      className="text-red-400 hover:text-red-300"
-                      onClick={() => deleteProductPerformance(item.id)}
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {sortedData.length === 0 && !loading && (
-              <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-gray-400">
-                  No product performance data available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <div className="overflow-hidden">
+            <table className="min-w-full bg-gray-900 sm:rounded-lg shadow border-y sm:border border-gray-700">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('date')}>
+                    <div className="flex items-center">
+                      Date
+                      {sortConfig.key === 'date' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp size={14} className="sm:w-4 sm:h-4" /> : <ChevronDown size={14} className="sm:w-4 sm:h-4" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('product')}>
+                    <div className="flex items-center">
+                      Product Name
+                      {sortConfig.key === 'product' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp size={14} className="sm:w-4 sm:h-4" /> : <ChevronDown size={14} className="sm:w-4 sm:h-4" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('units_sold')}>
+                    <div className="flex items-center">
+                      Units Sold
+                      {sortConfig.key === 'units_sold' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp size={14} className="sm:w-4 sm:h-4" /> : <ChevronDown size={14} className="sm:w-4 sm:h-4" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('revenue')}>
+                    <div className="flex items-center">
+                      Revenue
+                      {sortConfig.key === 'revenue' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp size={14} className="sm:w-4 sm:h-4" /> : <ChevronDown size={14} className="sm:w-4 sm:h-4" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer" onClick={() => requestSort('average_rating')}>
+                    <div className="flex items-center">
+                      Avg. Rating
+                      {sortConfig.key === 'average_rating' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp size={14} className="sm:w-4 sm:h-4" /> : <ChevronDown size={14} className="sm:w-4 sm:h-4" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {sortedData.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-800">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-300">
+                      <div className="hidden sm:block">{new Date(item.date).toLocaleDateString()}</div>
+                      <div className="sm:hidden">{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-300 max-w-[120px] sm:max-w-none truncate">
+                      {item.product_name || `Product ID: ${item.product}`}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-300">{item.units_sold.toLocaleString()}</td>
+                    <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-300">{formatCurrency(item.revenue)}</td>
+                    <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-300">{formatRating(item.average_rating)}</td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                      <div className="flex space-x-2">
+                        <button
+                          className="text-teal-400 hover:text-teal-300"
+                          onClick={() => {
+                            fetchProductDetail(item.id);
+                            setCurrentView('detail');
+                          }}
+                        >
+                          <Edit size={16} className="sm:w-[18px] sm:h-[18px]" />
+                        </button>
+                        <button
+                          className="text-red-400 hover:text-red-300"
+                          onClick={() => deleteProductPerformance(item.id)}
+                        >
+                          <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {sortedData.length === 0 && !loading && (
+                  <tr>
+                    <td colSpan="6" className="px-3 sm:px-6 py-4 text-center text-gray-400 text-sm">
+                      No product performance data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     );
   };
 
   return (
     <div className="bg-gray-900 min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-200 mb-2">Product Performance</h1>
-          <p className="text-gray-400">Track and analyze product sales and performance metrics</p>
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-200 mb-1 sm:mb-2">Product Performance</h1>
+          <p className="text-sm sm:text-base text-gray-400">Track and analyze product sales and performance metrics</p>
         </div>
 
-        <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-4 sm:mb-6 gap-3">
           <div className="flex flex-wrap gap-2">
             <button
-              className={`px-4 py-2 rounded-md ${currentView === 'list' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300 hover:bg-gray-900'}`}
+              className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm ${currentView === 'list' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300 hover:bg-gray-900'}`}
               onClick={() => {
                 setCurrentView('list');
                 fetchProductPerformance();
               }}
             >
-              <Table size={16} className="inline mr-2" />
+              <Table size={14} className="inline mr-1 sm:mr-2 sm:w-4 sm:h-4" />
               Table View
             </button>
             <button
-              className={`px-4 py-2 rounded-md ${currentView === 'dashboard' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300 hover:bg-gray-900'}`}
+              className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm ${currentView === 'dashboard' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300 hover:bg-gray-900'}`}
               onClick={() => {
                 if (productPerformance.length > 0) {
                   setCurrentView('dashboard');
@@ -733,31 +762,31 @@ const Products = () => {
                 }
               }}
             >
-              <BarChart2 size={16} className="inline mr-2" />
+              <BarChart2 size={14} className="inline mr-1 sm:mr-2 sm:w-4 sm:h-4" />
               Charts
             </button>
             <button
-              className={`px-4 py-2 rounded-md ${currentView === 'report' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300 hover:bg-gray-900'}`}
+              className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm ${currentView === 'report' ? 'bg-teal-600 text-white' : 'border border-gray-600 text-gray-300 hover:bg-gray-900'}`}
               onClick={() => setCurrentView('report')}
             >
-              <Activity size={16} className="inline mr-2" />
+              <Activity size={14} className="inline mr-1 sm:mr-2 sm:w-4 sm:h-4" />
               Generate Report
             </button>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <button
-              className="px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-900 flex items-center"
+              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-900 flex items-center justify-center text-xs sm:text-sm"
               onClick={fetchProductPerformance}
             >
-              <RefreshCw size={16} className="mr-2" />
+              <RefreshCw size={14} className="mr-1 sm:mr-2 sm:w-4 sm:h-4" />
               Refresh
             </button>
             {productPerformance.length > 0 && (
               <button
-                className="px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-900 flex items-center"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-900 flex items-center justify-center text-xs sm:text-sm"
                 onClick={exportToPDF}
               >
-                <Download size={16} className="mr-2" />
+                <Download size={14} className="mr-1 sm:mr-2 sm:w-4 sm:h-4" />
                 Export PDF
               </button>
             )}
@@ -765,14 +794,14 @@ const Products = () => {
         </div>
 
         {error && currentView !== 'report' && currentView !== 'detail' && (
-          <div className="bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded mb-4">
+          <div className="bg-red-900/30 border border-red-700 text-red-300 px-3 py-2 sm:px-4 sm:py-3 rounded mb-4 text-sm">
             {error}
           </div>
         )}
 
         {loading && (
           <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-t-2 border-b-2 border-teal-500"></div>
           </div>
         )}
 
